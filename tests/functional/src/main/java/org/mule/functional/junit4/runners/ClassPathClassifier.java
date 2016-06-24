@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 /**
- * A {@link ClassPathClassifier} is responsible for building the {@link ClassSpace} that would be used for creating
+ * A {@link ClassPathClassifier} is responsible for building the {@link ArtifactClassSpace} that would be used for creating
  * the {@link ClassLoader} to run the test.
  */
 public interface ClassPathClassifier
@@ -23,7 +23,7 @@ public interface ClassPathClassifier
      * @param classPathURLs current URLs for the classpath provided by JUnit (it is the complete list of URLs)
      * @param allDependencies Maven dependencies for the given artifact tested (with its duplications). The map has as key an artifact and values are its dependencies
      * @param mavenMultiModuleArtifactMapping mapper used to identify a multi-module project folder from its artifact metadata
-     * @return a {@link ClassSpace} with the corresponding {@link URL}s
+     * @return a {@link ArtifactClassSpace} with the corresponding {@link URL}s
      */
-    ClassSpace classify(Class<?> klass, Set<URL> classPathURLs, LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies, MavenMultiModuleArtifactMapping mavenMultiModuleArtifactMapping);
+    ArtifactClassSpace classify(Class<?> klass, Set<URL> classPathURLs, LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies, MavenMultiModuleArtifactMapping mavenMultiModuleArtifactMapping);
 }

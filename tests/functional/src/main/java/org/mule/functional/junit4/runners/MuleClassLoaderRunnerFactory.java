@@ -38,34 +38,29 @@ public class MuleClassLoaderRunnerFactory implements ClassLoaderRunnerFactory
     protected final transient Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public ClassLoader createClassLoader(Class<?> klass, ClassSpace classSpace)
+    public ClassLoader createClassLoader(Class<?> klass, ArtifactClassSpace artifactClassSpace)
     {
-        ClassSpace classSpaceWalker = classSpace;
-
         // Container classLoader
-        logClassLoaderUrls("CONTAINER", classSpaceWalker.getURLs());
+        logClassLoaderUrls("CONTAINER", artifactClassSpace.getContainer());
         final TestContainerClassLoaderFactory testContainerClassLoaderFactory = new TestContainerClassLoaderFactory(getExtraBootPackages(klass));
         Set<String> containerExportedPackages = new HashSet<>();
         containerExportedPackages.addAll(testContainerClassLoaderFactory.getBootPackages());
         containerExportedPackages.addAll(testContainerClassLoaderFactory.getSystemPackages());
-        ArtifactClassLoader classLoader = testContainerClassLoaderFactory.createContainerClassLoader(new URLClassLoader(classSpaceWalker.getURLs()));
+        ArtifactClassLoader classLoader = testContainerClassLoaderFactory.createContainerClassLoader(new URLClassLoader(artifactClassSpace.getContainer()));
 
-        // TODO do this in a recursive method!
-        if (classSpaceWalker.getChild() != null)
+        // Plugin classloaders
+        if (artifactClassSpace.getPlugins().length > 0)
         {
-            classSpaceWalker = classSpaceWalker.getChild();
+            final URL[] classSpace = artifactClassSpace.getPlugins()[0];
             // Plugin classLoader
-            logClassLoaderUrls("PLUGIN", classSpaceWalker.getURLs());
-            classLoader = new MuleArtifactClassLoader("plugin", classSpaceWalker.getURLs(), classLoader.getClassLoader(), classLoader.getClassLoaderLookupPolicy());
-
-            if (classSpaceWalker.getChild() != null)
-            {
-                classSpaceWalker = classSpaceWalker.getChild();
-                // Application classLoader
-                logClassLoaderUrls("APP", classSpaceWalker.getURLs());
-                classLoader = new MuleArtifactClassLoader("app", classSpaceWalker.getURLs(), classLoader.getClassLoader(), classLoader.getClassLoaderLookupPolicy());
-            }
+            logClassLoaderUrls("PLUGIN", classSpace);
+            classLoader = new MuleArtifactClassLoader("plugin", classSpace, classLoader.getClassLoader(), classLoader.getClassLoaderLookupPolicy());
         }
+
+        // Application classLoader
+        logClassLoaderUrls("APP", artifactClassSpace.getApplication());
+        classLoader = new MuleArtifactClassLoader("app", artifactClassSpace.getApplication(), classLoader.getClassLoader(), classLoader.getClassLoaderLookupPolicy());
+
         return classLoader.getClassLoader();
     }
 

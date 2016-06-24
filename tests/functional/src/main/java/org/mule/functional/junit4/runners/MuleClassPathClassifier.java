@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation for {@link ClassPathClassifier} that builds a {@link ClassSpace} similar to what Mule
+ * Default implementation for {@link ClassPathClassifier} that builds a {@link ArtifactClassSpace} similar to what Mule
  * Runtime does by taking into account the Maven dependencies of the given tested artifact.
- * Basically it creates a {@link ClassSpace} hierarchy with:
+ * Basically it creates a {@link ArtifactClassSpace} hierarchy with:
  * Provided Scope (plus JDK stuff)->Compile Scope (plus target/classes)->Test Scope (plus target/test-classes)
  * In all the cases it also includes its dependencies.
  */
@@ -38,13 +38,11 @@ public class MuleClassPathClassifier implements ClassPathClassifier
     private static final String TARGET_TEST_CLASSES = "/target/test-classes/";
 
     @Override
-    public ClassSpace classify(Class<?> klass, Set<URL> classPathURLs, LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies, MavenMultiModuleArtifactMapping mavenMultiModuleMapping)
+    public ArtifactClassSpace classify(Class<?> klass, Set<URL> classPathURLs, LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies, MavenMultiModuleArtifactMapping mavenMultiModuleMapping)
     {
         final String currentArtifactFolder = new File(System.getProperty("user.dir")).getPath();
 
         final Class[] extensions = getExtensions(klass);
-
-        ClassSpaceBuilder classSpaceBuilder = new ClassSpaceBuilder();
 
         Predicate<MavenArtifact> appExclusion = getAppExclusionPredicate(klass);
 
@@ -57,17 +55,18 @@ public class MuleClassPathClassifier implements ClassPathClassifier
         // Plus the target/test-classes of the current compiled artifact
         appURLs.addAll(buildArtifactTargetClassesURL(currentArtifactFolder, classPathURLs));
 
-        classSpaceBuilder.withSpace(appURLs.toArray(new URL[appURLs.size()]), new URL[0]);
+        final URL[] applicationClassSpace = appURLs.toArray(new URL[appURLs.size()]);
 
         // The container contains anything that is not application either extension classloader urls
         Set<URL> containerURLs = new HashSet<>();
         containerURLs.addAll(classPathURLs);
         containerURLs.removeAll(appURLs);
 
+        URL[][] pluginClassSpaces = new URL[extensions.length][];
         if (extensions.length > 0)
         {
             Set<URL> pluginURLs = buildClassLoaderURLs(mavenMultiModuleMapping, classPathURLs, allDependencies, false, artifact -> artifact.equals(compileArtifact), dependency -> dependency.isCompileScope(), false);
-
+            containerURLs.removeAll(pluginURLs);
             File generatedResourcesDirectory = new File(currentArtifactFolder + File.separator + "target" + File.separator + "generated-test-sources" + File.separator + "META-INF");
             generatedResourcesDirectory.mkdirs();
             ExtensionsTestInfrastructureDiscoverer extensionDiscoverer = new ExtensionsTestInfrastructureDiscoverer(generatedResourcesDirectory);
@@ -81,17 +80,16 @@ public class MuleClassPathClassifier implements ClassPathClassifier
             {
                 throw new IllegalArgumentException("Error while building resource URL for directory: " + generatedResourcesDirectory.getPath(), e);
             }
-
-            classSpaceBuilder.withSpace(pluginURLs.toArray(new URL[pluginURLs.size()]), new URL[0]);
+            pluginClassSpaces[0] = pluginURLs.toArray(new URL[pluginURLs.size()]);
         }
 
         // After removing all the plugin and application urls we add provided dependencies urls (supports for having same dependencies as provided transitive and compile either test)
         Set<URL> containerProvidedDependenciesURLs = buildClassLoaderURLs(mavenMultiModuleMapping, classPathURLs, allDependencies, true, artifact -> artifact.equals(compileArtifact), dependency -> dependency.isProvidedScope(), false);
         containerURLs.addAll(containerProvidedDependenciesURLs);
 
-        classSpaceBuilder.withSpace(containerURLs.toArray(new URL[containerURLs.size()]), new URL[0]);
+        final URL[] containerClassSpace = containerURLs.toArray(new URL[containerURLs.size()]);
 
-        return classSpaceBuilder.build();
+        return new ArtifactClassSpace(containerClassSpace, pluginClassSpaces, applicationClassSpace);
     }
 
     private MavenArtifact getCompileArtifact(final LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies)
