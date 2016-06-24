@@ -16,8 +16,8 @@ import static org.mule.runtime.config.spring.dsl.api.TypeDefinition.fromType;
 import org.mule.runtime.config.spring.dsl.api.ComponentBuildingDefinition;
 import org.mule.runtime.config.spring.dsl.api.ComponentBuildingDefinitionProvider;
 import org.mule.test.config.spring.parsers.beans.SimpleCollectionObject;
-import org.mule.runtime.config.spring.parsers.beans.ParameterAndChildElement;
-import org.mule.runtime.config.spring.parsers.beans.SimplePojo;
+import org.mule.test.config.spring.parsers.beans.ParameterAndChildElement;
+import org.mule.test.config.spring.parsers.beans.SimplePojo;
 import org.mule.runtime.core.api.MuleContext;
 
 import java.util.ArrayList;
