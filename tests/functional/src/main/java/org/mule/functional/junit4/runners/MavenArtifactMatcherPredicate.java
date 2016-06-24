@@ -10,17 +10,17 @@ package org.mule.functional.junit4.runners;
 import java.util.function.Predicate;
 
 /**
- * {@link Predicate} to exclude {@link MavenArtifact} based on groupId, artifactId and type.
+ * {@link Predicate} to match a {@link MavenArtifact} based on groupId, artifactId and type.
  * It support wildcard for any of GAT fields. It is also supported partial wildcard for startsWith for groupId and artifactId.
  */
-public class MavenArtifactExclusionPredicate implements Predicate<MavenArtifact>
+public class MavenArtifactMatcherPredicate implements Predicate<MavenArtifact>
 {
 
     private String groupId;
     private String artifactId;
     private String type;
 
-    public MavenArtifactExclusionPredicate(String groupId, String artifactId, String type)
+    public MavenArtifactMatcherPredicate(String groupId, String artifactId, String type)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;

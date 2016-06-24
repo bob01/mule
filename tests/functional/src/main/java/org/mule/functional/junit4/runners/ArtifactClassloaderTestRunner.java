@@ -9,7 +9,7 @@ package org.mule.functional.junit4.runners;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.junit.runner.Runner;
@@ -61,7 +61,7 @@ public class ArtifactClassloaderTestRunner extends AbstractRunnerDelegate
     private ClassLoader buildArtifactClassloader(final Class<?> klass) throws IOException, URISyntaxException
     {
         final Set<URL> classPathURLs = this.classPathURLsProvider.getURLs();
-        Map<MavenArtifact, Set<MavenArtifact>> allDependencies = mavenDependenciesResolver.buildDependencies(klass);
+        LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies = mavenDependenciesResolver.buildDependencies(klass);
 
         ClassSpace classSpace = classPathClassifier.classify(klass, classPathURLs, allDependencies, mavenMultiModuleArtifactMapping);
         ClassLoader classLoader = classLoaderRunnerFactory.createClassLoader(klass, classSpace);

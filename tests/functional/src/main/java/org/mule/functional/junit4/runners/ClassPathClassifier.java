@@ -8,7 +8,7 @@
 package org.mule.functional.junit4.runners;
 
 import java.net.URL;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 /**
@@ -25,5 +25,5 @@ public interface ClassPathClassifier
      * @param mavenMultiModuleArtifactMapping mapper used to identify a multi-module project folder from its artifact metadata
      * @return a {@link ClassSpace} with the corresponding {@link URL}s
      */
-    ClassSpace classify(Class<?> klass, Set<URL> classPathURLs, Map<MavenArtifact, Set<MavenArtifact>> allDependencies, MavenMultiModuleArtifactMapping mavenMultiModuleArtifactMapping);
+    ClassSpace classify(Class<?> klass, Set<URL> classPathURLs, LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies, MavenMultiModuleArtifactMapping mavenMultiModuleArtifactMapping);
 }

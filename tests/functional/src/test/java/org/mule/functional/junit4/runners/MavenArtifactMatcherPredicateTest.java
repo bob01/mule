@@ -19,13 +19,13 @@ import org.junit.Test;
  * Tests the {@link java.util.function.Predicate} for {@link MavenArtifact}
  */
 @SmallTest
-public class MavenArtifactExclusionPredicateTest
+public class MavenArtifactMatcherPredicateTest
 {
 
     @Test
-    public void exclusionByGroupId()
+    public void matchByGroupId()
     {
-        Predicate<MavenArtifact> predicate = new MavenArtifactExclusionPredicate("org.mule", "*", "*");
+        Predicate<MavenArtifact> predicate = new MavenArtifactMatcherPredicate("org.mule", "*", "*");
 
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("jar").build()), equalTo(true));
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("test-jar").build()), equalTo(true));
@@ -36,9 +36,9 @@ public class MavenArtifactExclusionPredicateTest
     }
 
     @Test
-    public void exclusionByGroupIdStartsWith()
+    public void matchByGroupIdStartsWith()
     {
-        Predicate<MavenArtifact> predicate = new MavenArtifactExclusionPredicate("org.mule*", "*", "*");
+        Predicate<MavenArtifact> predicate = new MavenArtifactMatcherPredicate("org.mule*", "*", "*");
 
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("jar").build()), equalTo(true));
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("test-jar").build()), equalTo(true));
@@ -49,9 +49,9 @@ public class MavenArtifactExclusionPredicateTest
     }
 
     @Test
-    public void exclusionByArtifactId()
+    public void matchByArtifactId()
     {
-        Predicate<MavenArtifact> predicate = new MavenArtifactExclusionPredicate("org.mule", "mule-core", "*");
+        Predicate<MavenArtifact> predicate = new MavenArtifactMatcherPredicate("org.mule", "mule-core", "*");
 
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("jar").build()), equalTo(true));
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("test-jar").build()), equalTo(true));
@@ -62,9 +62,9 @@ public class MavenArtifactExclusionPredicateTest
     }
 
     @Test
-    public void exclusionByArtifactIdStartsWith()
+    public void matchByArtifactIdStartsWith()
     {
-        Predicate<MavenArtifact> predicate = new MavenArtifactExclusionPredicate("org.mule", "mule-*", "*");
+        Predicate<MavenArtifact> predicate = new MavenArtifactMatcherPredicate("org.mule", "mule-*", "*");
 
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("jar").build()), equalTo(true));
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("test-jar").build()), equalTo(true));
@@ -75,9 +75,9 @@ public class MavenArtifactExclusionPredicateTest
     }
 
     @Test
-    public void exclusionByType()
+    public void matchByType()
     {
-        Predicate<MavenArtifact> predicate = new MavenArtifactExclusionPredicate("org.mule", "mule-core", "jar");
+        Predicate<MavenArtifact> predicate = new MavenArtifactMatcherPredicate("org.mule", "mule-core", "jar");
 
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("jar").build()), equalTo(true));
 
@@ -88,9 +88,9 @@ public class MavenArtifactExclusionPredicateTest
     }
 
     @Test
-    public void orExclusion()
+    public void orMatching()
     {
-        Predicate<MavenArtifact> predicate = new MavenArtifactExclusionPredicate("org.mule", "mule-core", "jar").or(new MavenArtifactExclusionPredicate("org.mule.transports", "*", "*"));
+        Predicate<MavenArtifact> predicate = new MavenArtifactMatcherPredicate("org.mule", "mule-core", "jar").or(new MavenArtifactMatcherPredicate("org.mule.transports", "*", "*"));
 
         assertThat(predicate.test(MavenArtifact.builder().withGroupId("org.mule").withArtifactId("mule-core").withType("jar").build()), equalTo(true));
 

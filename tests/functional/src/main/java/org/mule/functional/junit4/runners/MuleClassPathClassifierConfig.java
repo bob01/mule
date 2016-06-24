@@ -26,9 +26,9 @@ public @interface MuleClassPathClassifierConfig
      * only starts with for partial matching org.mule*:*:*) that would be used in order to exclude artifacts that should not be added to
      * the application classloader due to they will be already exposed through plugin or container. This will not be applied to those
      * artifacts that are declared as test scope but it will be used for filtering its dependencies.
-     * Default exclusion is "org.mule*:*:*"
+     * Default exclusion is "org.mule:*:*,org.mule.modules*:*:*,org.mule.transports:*:*,org.mule.mvel:*:*,org.mule.common:*:*"
      */
-    String appExclusions() default "org.mule*:*:*";
+    String appExclusions() default "org.mule:*:*,org.mule.modules*:*:*,org.mule.transports:*:*,org.mule.mvel:*:*,org.mule.common:*:*";
 
     /**
      * @return flag to enable the runner to have a plugin class space (and classloader) between the application classloader

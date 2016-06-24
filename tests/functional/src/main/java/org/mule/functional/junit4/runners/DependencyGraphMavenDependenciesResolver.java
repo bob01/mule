@@ -15,9 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -37,7 +36,7 @@ public class DependencyGraphMavenDependenciesResolver implements MavenDependenci
     protected final transient Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public Map<MavenArtifact, Set<MavenArtifact>> buildDependencies(Class<?> testClass)
+    public LinkedHashMap<MavenArtifact, Set<MavenArtifact>> buildDependencies(Class<?> testClass)
     {
         try
         {
@@ -52,7 +51,7 @@ public class DependencyGraphMavenDependenciesResolver implements MavenDependenci
             logger.debug("Building maven dependencies graph using depgraph-maven-plugin output file: '{}', created: {}, last modified: {}", dependenciesGraphFile, view.creationTime(), view.lastModifiedTime());
 
 
-            Map<MavenArtifact, Set<MavenArtifact>> mavenArtifactsDependencies = new HashMap<>();
+            LinkedHashMap<MavenArtifact, Set<MavenArtifact>> mavenArtifactsDependencies = new LinkedHashMap<>();
             Files.readAllLines(dependenciesGraphFile.toPath(),
                                Charset.defaultCharset()).stream()
                     .filter(line -> line.contains(DEPENDENCIES_GRAPH_ARROW)).forEach(line ->

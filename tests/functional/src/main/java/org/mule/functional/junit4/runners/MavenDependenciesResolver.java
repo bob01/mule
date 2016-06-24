@@ -7,7 +7,7 @@
 
 package org.mule.functional.junit4.runners;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 /**
@@ -19,7 +19,8 @@ public interface MavenDependenciesResolver
     /**
      * @param testClass
      * @return based on the testClass it would generate the dependencies for the maven artifact that the class belongs to.
-     * It will return a {@link Map} with each dependency as key and for each key a {@link Set} of its dependencies.
+     * It will return a {@link LinkedHashMap} with each dependency as key and for each key a {@link Set} of its dependencies.
+     * First entry of the map should be the current artifact being tested by the runner.
      */
-    Map<MavenArtifact, Set<MavenArtifact>> buildDependencies(Class<?> testClass);
+    LinkedHashMap<MavenArtifact, Set<MavenArtifact>> buildDependencies(Class<?> testClass);
 }

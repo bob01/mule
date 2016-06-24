@@ -19,4 +19,5 @@ public interface MavenMultiModuleArtifactMapping
      * @return the relative folder path for the given artifactId.
      */
     String mapModuleFolderNameFor(String artifactId);
+
 }
