@@ -11,12 +11,14 @@ import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import org.mule.extension.file.api.FileConnector;
 import org.mule.extension.file.api.LocalFileAttributes;
-import org.mule.functional.junit4.ExtensionFunctionalTestCase;
+import org.mule.functional.junit4.FunctionalTestCase;
 import org.mule.functional.junit4.runners.ArtifactClassloaderTestRunner;
+import org.mule.functional.junit4.runners.ClassLoaderIsolatedExtensionsManagerConfigurationBuilder;
 import org.mule.functional.junit4.runners.MuleClassPathClassifierConfig;
 import org.mule.runtime.api.message.MuleMessage;
 import org.mule.runtime.core.api.MuleEvent;
 import org.mule.runtime.core.api.MutableMuleMessage;
+import org.mule.runtime.core.api.config.ConfigurationBuilder;
 import org.mule.runtime.core.util.IOUtils;
 import org.mule.runtime.module.extension.file.api.FileWriteMode;
 import org.mule.runtime.module.extension.file.api.stream.AbstractFileInputStream;
@@ -24,6 +26,7 @@ import org.mule.tck.junit4.rule.SystemProperty;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.ClassRule;
@@ -34,7 +37,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(ArtifactClassloaderTestRunner.class)
 @MuleClassPathClassifierConfig(usePluginClassSpace = true)
-public abstract class FileConnectorTestCase extends ExtensionFunctionalTestCase
+public abstract class FileConnectorTestCase extends FunctionalTestCase
 {
 
     protected static final String HELLO_WORLD = "Hello World!";
@@ -68,11 +71,14 @@ public abstract class FileConnectorTestCase extends ExtensionFunctionalTestCase
         temporaryFolder.delete();
     }
 
+    //TODO move this to an abstract functional test case for extesions (with support for classloading isolation)
     @Override
-    protected Class<?>[] getAnnotatedExtensionClasses()
+    protected final void addBuilders(List<ConfigurationBuilder> builders)
     {
-        return new Class<?>[] {FileConnector.class};
+        super.addBuilders(builders);
+        builders.add(0, new ClassLoaderIsolatedExtensionsManagerConfigurationBuilder(new Class<?>[] {FileConnector.class}));
     }
+
 
     protected void assertExists(boolean exists, File... files)
     {

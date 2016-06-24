@@ -9,17 +9,20 @@ package org.mule.extension.ftp;
 import static org.mule.extension.FtpTestHarness.HELLO_PATH;
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.ftp.api.FtpConnector;
-import org.mule.functional.junit4.ExtensionFunctionalTestCase;
+import org.mule.functional.junit4.FunctionalTestCase;
 import org.mule.functional.junit4.runners.ArtifactClassloaderTestRunner;
-import org.mule.functional.junit4.runners.RunnerDelegateTo;
+import org.mule.functional.junit4.runners.ClassLoaderIsolatedExtensionsManagerConfigurationBuilder;
 import org.mule.functional.junit4.runners.MuleClassPathClassifierConfig;
+import org.mule.functional.junit4.runners.RunnerDelegateTo;
 import org.mule.runtime.api.message.MuleEvent;
 import org.mule.runtime.api.message.MuleMessage;
+import org.mule.runtime.core.api.config.ConfigurationBuilder;
 import org.mule.runtime.module.extension.file.api.FileWriteMode;
 import org.mule.runtime.module.extension.file.api.stream.AbstractFileInputStream;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Rule;
 import org.junit.runner.RunWith;
@@ -29,7 +32,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(ArtifactClassloaderTestRunner.class)
 @RunnerDelegateTo(Parameterized.class)
 @MuleClassPathClassifierConfig(usePluginClassSpace = true)
-public abstract class FtpConnectorTestCase extends ExtensionFunctionalTestCase
+public abstract class FtpConnectorTestCase extends FunctionalTestCase
 {
 
     private final String name;
@@ -52,10 +55,19 @@ public abstract class FtpConnectorTestCase extends ExtensionFunctionalTestCase
         this.testHarness = testHarness;
     }
 
+    //@Override
+    //protected Class<?>[] getAnnotatedExtensionClasses()
+    //{
+    //    return new Class<?>[] {FtpConnector.class};
+    //}
+
+
+    //TODO move this to an abstract functional test case for extesions (with support for classloading isolation)
     @Override
-    protected Class<?>[] getAnnotatedExtensionClasses()
+    protected final void addBuilders(List<ConfigurationBuilder> builders)
     {
-        return new Class<?>[] {FtpConnector.class};
+        super.addBuilders(builders);
+        builders.add(0, new ClassLoaderIsolatedExtensionsManagerConfigurationBuilder(new Class<?>[] {FtpConnector.class}));
     }
 
     protected MuleEvent readHelloWorld() throws Exception

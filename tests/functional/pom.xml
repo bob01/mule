@@ -186,7 +186,13 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
         </dependency>
-
+        <!-- TODO:(gfernandes) remove this when runner has annotated the extension classes to be tested so there is no need to scan the for the extension annotation -->
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.19.0-GA</version>
+            <optional>false</optional> <!-- case: when not actually scanning with javassist or if using {@link Reflections.collect()} -->
+        </dependency>
 
         <!-- Unit tests -->
         <dependency>

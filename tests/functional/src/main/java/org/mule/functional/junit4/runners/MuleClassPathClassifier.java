@@ -7,7 +7,12 @@
 
 package org.mule.functional.junit4.runners;
 
+import org.mule.functional.junit4.ExtensionsTestInfrastructureDiscoverer;
+import org.mule.runtime.extension.api.annotation.Extension;
+import org.mule.runtime.extension.api.introspection.declaration.spi.Describer;
+
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,6 +22,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +69,30 @@ public class MuleClassPathClassifier implements ClassPathClassifier
         if (isUsingPluginClassSpace)
         {
             Set<URL> pluginURLs = buildClassLoaderURLs(mavenMultiModuleMapping, classPathURLs, allDependencies, false, artifact -> artifact.equals(compileArtifact), dependency -> dependency.isCompileScope(), false);
-            containerURLs.removeAll(pluginURLs);
+            Reflections reflections = new Reflections(new ConfigurationBuilder()
+                                                              .setUrls(pluginURLs.toArray(new URL[pluginURLs.size()])));
+            Set<Class<? extends Object>> extensionAnnotatedClasses = reflections.getTypesAnnotatedWith(Extension.class);
+            logger.debug("Found the following extensions annotated classes in plugin classloaders: " + extensionAnnotatedClasses);
+            if (extensionAnnotatedClasses.size() > 1) {
+                throw new IllegalStateException("Only one extension should be included as compile scope, found: " + extensionAnnotatedClasses);
+            }
+            if(extensionAnnotatedClasses.isEmpty()) {
+                throw new IllegalStateException("At least one extension should be included as compile scope");
+            }
+
+            File generatedResourcesDirectory = new File(currentArtifactFolder + File.separator + "target" + File.separator + "generated-test-sources" + File.separator + "META-INF");
+            generatedResourcesDirectory.mkdirs();
+            ExtensionsTestInfrastructureDiscoverer extensionDiscoverer = new ExtensionsTestInfrastructureDiscoverer(generatedResourcesDirectory);
+            extensionDiscoverer.discoverExtensions(new Describer[0], extensionAnnotatedClasses.toArray(new Class<?>[extensionAnnotatedClasses.size()]));
+            try
+            {
+                // Registering parent file as resource to be used from the configuration builder
+                pluginURLs.add(generatedResourcesDirectory.getParentFile().toURI().toURL());
+            }
+            catch (MalformedURLException e)
+            {
+                throw new IllegalArgumentException("Error while building resource URL for directory: " + generatedResourcesDirectory.getPath(), e);
+            }
 
             classSpaceBuilder.withSpace(pluginURLs.toArray(new URL[pluginURLs.size()]), new URL[0]);
         }
