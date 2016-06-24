@@ -11,10 +11,10 @@ import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import org.mule.extension.file.api.FileConnector;
 import org.mule.extension.file.api.LocalFileAttributes;
+import org.mule.functional.junit4.runners.ArtifactClassLoaderRunnerConfig;
 import org.mule.functional.junit4.FunctionalTestCase;
 import org.mule.functional.junit4.runners.ArtifactClassloaderTestRunner;
 import org.mule.functional.junit4.runners.ClassLoaderIsolatedExtensionsManagerConfigurationBuilder;
-import org.mule.functional.junit4.runners.MuleClassPathClassifierConfig;
 import org.mule.runtime.api.message.MuleMessage;
 import org.mule.runtime.core.api.MuleEvent;
 import org.mule.runtime.core.api.MutableMuleMessage;
@@ -36,7 +36,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 @RunWith(ArtifactClassloaderTestRunner.class)
-@MuleClassPathClassifierConfig(usePluginClassSpace = true)
+@ArtifactClassLoaderRunnerConfig(extensions = FileConnector.class)
 public abstract class FileConnectorTestCase extends FunctionalTestCase
 {
 

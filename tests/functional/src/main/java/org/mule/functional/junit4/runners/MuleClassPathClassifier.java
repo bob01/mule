@@ -7,8 +7,8 @@
 
 package org.mule.functional.junit4.runners;
 
+import static org.mule.functional.junit4.runners.AnnotationUtils.getAnnotationAttributeFrom;
 import org.mule.functional.junit4.ExtensionsTestInfrastructureDiscoverer;
-import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.introspection.declaration.spi.Describer;
 
 import java.io.File;
@@ -22,8 +22,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.reflections.Reflections;
-import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +42,7 @@ public class MuleClassPathClassifier implements ClassPathClassifier
     {
         final String currentArtifactFolder = new File(System.getProperty("user.dir")).getPath();
 
-        boolean isUsingPluginClassSpace = isUsePluginClassSpace(klass);
+        final Class[] extensions = getExtensions(klass);
 
         ClassSpaceBuilder classSpaceBuilder = new ClassSpaceBuilder();
 
@@ -66,24 +64,14 @@ public class MuleClassPathClassifier implements ClassPathClassifier
         containerURLs.addAll(classPathURLs);
         containerURLs.removeAll(appURLs);
 
-        if (isUsingPluginClassSpace)
+        if (extensions.length > 0)
         {
             Set<URL> pluginURLs = buildClassLoaderURLs(mavenMultiModuleMapping, classPathURLs, allDependencies, false, artifact -> artifact.equals(compileArtifact), dependency -> dependency.isCompileScope(), false);
-            Reflections reflections = new Reflections(new ConfigurationBuilder()
-                                                              .setUrls(pluginURLs.toArray(new URL[pluginURLs.size()])));
-            Set<Class<? extends Object>> extensionAnnotatedClasses = reflections.getTypesAnnotatedWith(Extension.class);
-            logger.debug("Found the following extensions annotated classes in plugin classloaders: " + extensionAnnotatedClasses);
-            if (extensionAnnotatedClasses.size() > 1) {
-                throw new IllegalStateException("Only one extension should be included as compile scope, found: " + extensionAnnotatedClasses);
-            }
-            if(extensionAnnotatedClasses.isEmpty()) {
-                throw new IllegalStateException("At least one extension should be included as compile scope");
-            }
 
             File generatedResourcesDirectory = new File(currentArtifactFolder + File.separator + "target" + File.separator + "generated-test-sources" + File.separator + "META-INF");
             generatedResourcesDirectory.mkdirs();
             ExtensionsTestInfrastructureDiscoverer extensionDiscoverer = new ExtensionsTestInfrastructureDiscoverer(generatedResourcesDirectory);
-            extensionDiscoverer.discoverExtensions(new Describer[0], extensionAnnotatedClasses.toArray(new Class<?>[extensionAnnotatedClasses.size()]));
+            extensionDiscoverer.discoverExtensions(new Describer[0], extensions);
             try
             {
                 // Registering parent file as resource to be used from the configuration builder
@@ -224,26 +212,14 @@ public class MuleClassPathClassifier implements ClassPathClassifier
         }
     }
 
-
-    private boolean isUsePluginClassSpace(Class<?> klass)
+    private Class[] getExtensions(Class<?> klass)
     {
-        boolean usePluginClassSpace = false;
-        MuleClassPathClassifierConfig annotation = klass.getAnnotation(MuleClassPathClassifierConfig.class);
-        if (annotation != null)
-        {
-            usePluginClassSpace = annotation.usePluginClassSpace();
-        }
-        return usePluginClassSpace;
+        return getAnnotationAttributeFrom(klass, ArtifactClassLoaderRunnerConfig.class, "extensions");
     }
 
     private Predicate<MavenArtifact> getAppExclusionPredicate(Class<?> klass)
     {
-        String exclusions = "org.mule:*:*,org.mule.modules*:*:*,org.mule.transports:*:*,org.mule.mvel:*:*,org.mule.common:*:*";
-        MuleClassPathClassifierConfig annotation = klass.getAnnotation(MuleClassPathClassifierConfig.class);
-        if (annotation != null)
-        {
-            exclusions = annotation.appExclusions();
-        }
+        String exclusions = getAnnotationAttributeFrom(klass, ArtifactClassLoaderRunnerConfig.class, "appPackageExclusions");
 
         Predicate<MavenArtifact> exclusionPredicate = null;
         for (String exclusion : exclusions.split(","))

@@ -8,6 +8,7 @@
 package org.mule.functional.junit4.runners;
 
 import static java.util.Arrays.stream;
+import static org.mule.functional.junit4.runners.AnnotationUtils.getAnnotationAttributeFrom;
 import org.mule.runtime.module.artifact.classloader.ArtifactClassLoader;
 import org.mule.runtime.module.artifact.classloader.MuleArtifactClassLoader;
 
@@ -81,12 +82,8 @@ public class MuleClassLoaderRunnerFactory implements ClassLoaderRunnerFactory
 
     private Set<String> getExtraBootPackages(Class<?> klass)
     {
-        String extraPackages = "org.junit,junit,org.hamcrest,org.mockito";
-        MuleRunnerConfig annotation = klass.getAnnotation(MuleRunnerConfig.class);
-        if (annotation != null)
-        {
-            extraPackages = annotation.extraBootPackages();
-        }
+        String extraPackages = getAnnotationAttributeFrom(klass, ArtifactClassLoaderRunnerConfig.class, "extraBootPackages");
+
         return Sets.newHashSet(extraPackages.split(","));
     }
 
