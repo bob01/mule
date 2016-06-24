@@ -58,4 +58,20 @@ public @interface ArtifactClassLoaderRunnerConfig
      * container classloader, default packages are "org.junit,junit,org.hamcrest,org.mockito".
      */
     String extraBootPackages() default "org.junit,junit,org.hamcrest,org.mockito";
+
+
+    /**
+     * @return array of classes defining extensions that need to be added as plugins to the classloader used
+     * to execute the test. Non null;
+     */
+    Class[] extensions() default {};
+
+    /**
+     * @return a comma separated list of groupId:artifactId:type (it does support wildcards org.mule:*:* or *:mule-core:* but
+     * only starts with for partial matching org.mule*:*:*) that would be used in order to exclude artifacts that should not be added to
+     * the application classloader due to they will be already exposed through plugin or container. This will not be applied to those
+     * artifacts that are declared as test scope but it will be used for filtering its dependencies.
+     * Default exclusion is "org.mule:*:*,org.mule.modules*:*:*,org.mule.transports:*:*,org.mule.mvel:*:*,org.mule.common:*:*"
+     */
+    String appPackageExclusions() default "org.mule:*:*,org.mule.modules*:*:*,org.mule.transports:*:*,org.mule.mvel:*:*,org.mule.common:*:*";
 }

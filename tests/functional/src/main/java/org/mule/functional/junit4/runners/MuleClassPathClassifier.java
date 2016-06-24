@@ -8,6 +8,7 @@
 package org.mule.functional.junit4.runners;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,7 +38,7 @@ public class MuleClassPathClassifier implements ClassPathClassifier
     {
         final String currentArtifactFolder = new File(System.getProperty("user.dir")).getPath();
 
-        boolean isUsingPluginClassSpace = isUsePluginClassSpace(klass);
+        final Class[] extensions = getExtensions(klass);
 
         ClassSpaceBuilder classSpaceBuilder = new ClassSpaceBuilder();
 
@@ -59,7 +60,7 @@ public class MuleClassPathClassifier implements ClassPathClassifier
         containerURLs.addAll(classPathURLs);
         containerURLs.removeAll(appURLs);
 
-        if (isUsingPluginClassSpace)
+        if (extensions.length > 0)
         {
             Set<URL> pluginURLs = buildClassLoaderURLs(mavenMultiModuleMapping, classPathURLs, allDependencies, false, artifact -> artifact.equals(compileArtifact), dependency -> dependency.isCompileScope(), false);
             containerURLs.removeAll(pluginURLs);
@@ -194,25 +195,49 @@ public class MuleClassPathClassifier implements ClassPathClassifier
         }
     }
 
-
-    private boolean isUsePluginClassSpace(Class<?> klass)
+    private Class[] getExtensions(Class<?> klass)
     {
-        boolean usePluginClassSpace = false;
-        MuleClassPathClassifierConfig annotation = klass.getAnnotation(MuleClassPathClassifierConfig.class);
+
+        Class[] extensions;
+        ArtifactClassLoaderRunnerConfig annotation = klass.getAnnotation(ArtifactClassLoaderRunnerConfig.class);
         if (annotation != null)
         {
-            usePluginClassSpace = annotation.usePluginClassSpace();
+            extensions= annotation.extensions();
         }
-        return usePluginClassSpace;
+        else
+        {
+            try
+            {
+                Method method = ArtifactClassLoaderRunnerConfig.class.getMethod("extensions");
+                extensions  = (Class[]) method.getDefaultValue();
+            }
+            catch (NoSuchMethodException e)
+            {
+                throw new IllegalStateException("Cannot read default extensions from " + ArtifactClassLoaderRunnerConfig.class);
+            }
+        }
+        return extensions;
     }
 
     private Predicate<MavenArtifact> getAppExclusionPredicate(Class<?> klass)
     {
-        String exclusions = "org.mule:*:*,org.mule.modules*:*:*,org.mule.transports:*:*,org.mule.mvel:*:*,org.mule.common:*:*";
-        MuleClassPathClassifierConfig annotation = klass.getAnnotation(MuleClassPathClassifierConfig.class);
+        String exclusions;
+        ArtifactClassLoaderRunnerConfig annotation = klass.getAnnotation(ArtifactClassLoaderRunnerConfig.class);
         if (annotation != null)
         {
-            exclusions = annotation.appExclusions();
+            exclusions = annotation.appPackageExclusions();
+        }
+        else
+        {
+            try
+            {
+                Method method = ArtifactClassLoaderRunnerConfig.class.getMethod("appPackageExclusions");
+                exclusions  = (String) method.getDefaultValue();
+            }
+            catch (NoSuchMethodException e)
+            {
+                throw new IllegalStateException("Cannot read default app exclusion packages from " + ArtifactClassLoaderRunnerConfig.class);
+            }
         }
 
         Predicate<MavenArtifact> exclusionPredicate = null;

@@ -17,15 +17,14 @@ import org.mule.extension.validation.internal.ValidationExtension;
 import org.mule.extension.validation.internal.ValidationMessages;
 import org.mule.functional.junit4.ExtensionFunctionalTestCase;
 import org.mule.functional.junit4.FlowRunner;
+import org.mule.functional.junit4.runners.ArtifactClassLoaderRunnerConfig;
 import org.mule.functional.junit4.runners.ArtifactClassloaderTestRunner;
-import org.mule.functional.junit4.runners.MuleClassPathClassifierConfig;
-import org.mule.runtime.core.api.MuleException;
 import org.mule.runtime.core.config.i18n.Message;
 
 import org.junit.runner.RunWith;
 
 @RunWith(ArtifactClassloaderTestRunner.class)
-@MuleClassPathClassifierConfig(usePluginClassSpace = true)
+@ArtifactClassLoaderRunnerConfig(extensions = ValidationExtension.class)
 abstract class ValidationTestCase extends ExtensionFunctionalTestCase
 {
 
@@ -49,7 +48,7 @@ abstract class ValidationTestCase extends ExtensionFunctionalTestCase
         messages = new ValidationMessages();
     }
 
-    protected void assertValid(FlowRunner runner) throws MuleException, Exception
+    protected void assertValid(FlowRunner runner) throws Exception
     {
         assertThat(runner.run().getMessage().getExceptionPayload(), is(nullValue()));
         runner.reset();

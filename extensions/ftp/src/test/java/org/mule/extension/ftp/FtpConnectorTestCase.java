@@ -10,9 +10,9 @@ import static org.mule.extension.FtpTestHarness.HELLO_PATH;
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.ftp.api.FtpConnector;
 import org.mule.functional.junit4.ExtensionFunctionalTestCase;
+import org.mule.functional.junit4.runners.ArtifactClassLoaderRunnerConfig;
 import org.mule.functional.junit4.runners.ArtifactClassloaderTestRunner;
 import org.mule.functional.junit4.runners.RunnerDelegateTo;
-import org.mule.functional.junit4.runners.MuleClassPathClassifierConfig;
 import org.mule.runtime.api.message.MuleEvent;
 import org.mule.runtime.api.message.MuleMessage;
 import org.mule.runtime.module.extension.file.api.FileWriteMode;
@@ -28,7 +28,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(ArtifactClassloaderTestRunner.class)
 @RunnerDelegateTo(Parameterized.class)
-@MuleClassPathClassifierConfig(usePluginClassSpace = true)
+@ArtifactClassLoaderRunnerConfig(extensions = FtpConnector.class)
 public abstract class FtpConnectorTestCase extends ExtensionFunctionalTestCase
 {
 
