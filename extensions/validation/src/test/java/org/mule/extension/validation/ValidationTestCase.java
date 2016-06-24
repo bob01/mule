@@ -17,9 +17,15 @@ import org.mule.extension.validation.internal.ValidationExtension;
 import org.mule.extension.validation.internal.ValidationMessages;
 import org.mule.functional.junit4.ExtensionFunctionalTestCase;
 import org.mule.functional.junit4.FlowRunner;
+import org.mule.functional.junit4.runners.ArtifactClassloaderTestRunner;
+import org.mule.functional.junit4.runners.MuleClassPathClassifierConfig;
 import org.mule.runtime.core.api.MuleException;
 import org.mule.runtime.core.config.i18n.Message;
 
+import org.junit.runner.RunWith;
+
+@RunWith(ArtifactClassloaderTestRunner.class)
+@MuleClassPathClassifierConfig(usePluginClassSpace = true)
 abstract class ValidationTestCase extends ExtensionFunctionalTestCase
 {
 

@@ -9,8 +9,8 @@ package org.mule.runtime.config.dsl;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import org.mule.functional.junit4.FunctionalTestCase;
-import org.mule.runtime.config.spring.parsers.beans.SimpleCollectionObject;
 import org.mule.tck.junit4.rule.SystemProperty;
+import org.mule.test.config.spring.parsers.beans.SimpleCollectionObject;
 
 import org.junit.Rule;
 import org.junit.Test;
