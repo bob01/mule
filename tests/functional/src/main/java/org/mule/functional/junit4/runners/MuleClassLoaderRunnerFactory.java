@@ -13,6 +13,7 @@ import org.mule.runtime.module.artifact.classloader.MuleArtifactClassLoader;
 
 import com.google.common.collect.Sets;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
@@ -81,11 +82,23 @@ public class MuleClassLoaderRunnerFactory implements ClassLoaderRunnerFactory
 
     private Set<String> getExtraBootPackages(Class<?> klass)
     {
-        String extraPackages = "org.junit,junit,org.hamcrest,org.mockito";
-        MuleRunnerConfig annotation = klass.getAnnotation(MuleRunnerConfig.class);
+        String extraPackages;
+        ArtifactClassLoaderRunnerConfig annotation = klass.getAnnotation(ArtifactClassLoaderRunnerConfig.class);
         if (annotation != null)
         {
             extraPackages = annotation.extraBootPackages();
+        }
+        else
+        {
+            try
+            {
+                Method method = ArtifactClassLoaderRunnerConfig.class.getMethod("extraBootPackages");
+                extraPackages  = (String) method.getDefaultValue();
+            }
+            catch (NoSuchMethodException e)
+            {
+                throw new IllegalStateException("Cannot read default boot packages from " + ArtifactClassLoaderRunnerConfig.class);
+            }
         }
         return Sets.newHashSet(extraPackages.split(","));
     }

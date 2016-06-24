@@ -52,4 +52,10 @@ public @interface ArtifactClassLoaderRunnerConfig
      * If no class is defined it will use the default implementation. See {@link MuleClassPathClassifier}
      */
     Class<? extends ClassPathClassifier> classPathClassifier() default MuleClassPathClassifier.class;
+
+    /**
+     * @return a comma separated list of packages to be added as PARENT_ONLY for the
+     * container classloader, default packages are "org.junit,junit,org.hamcrest,org.mockito".
+     */
+    String extraBootPackages() default "org.junit,junit,org.hamcrest,org.mockito";
 }
