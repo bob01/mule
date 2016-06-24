@@ -7,8 +7,9 @@
 
 package org.mule.functional.junit4.runners;
 
+import static org.mule.functional.junit4.runners.AnnotationUtils.getAnnotationAttributeFrom;
+
 import java.io.File;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -197,48 +198,12 @@ public class MuleClassPathClassifier implements ClassPathClassifier
 
     private Class[] getExtensions(Class<?> klass)
     {
-
-        Class[] extensions;
-        ArtifactClassLoaderRunnerConfig annotation = klass.getAnnotation(ArtifactClassLoaderRunnerConfig.class);
-        if (annotation != null)
-        {
-            extensions= annotation.extensions();
-        }
-        else
-        {
-            try
-            {
-                Method method = ArtifactClassLoaderRunnerConfig.class.getMethod("extensions");
-                extensions  = (Class[]) method.getDefaultValue();
-            }
-            catch (NoSuchMethodException e)
-            {
-                throw new IllegalStateException("Cannot read default extensions from " + ArtifactClassLoaderRunnerConfig.class);
-            }
-        }
-        return extensions;
+        return getAnnotationAttributeFrom(klass, ArtifactClassLoaderRunnerConfig.class, "extensions");
     }
 
     private Predicate<MavenArtifact> getAppExclusionPredicate(Class<?> klass)
     {
-        String exclusions;
-        ArtifactClassLoaderRunnerConfig annotation = klass.getAnnotation(ArtifactClassLoaderRunnerConfig.class);
-        if (annotation != null)
-        {
-            exclusions = annotation.appPackageExclusions();
-        }
-        else
-        {
-            try
-            {
-                Method method = ArtifactClassLoaderRunnerConfig.class.getMethod("appPackageExclusions");
-                exclusions  = (String) method.getDefaultValue();
-            }
-            catch (NoSuchMethodException e)
-            {
-                throw new IllegalStateException("Cannot read default app exclusion packages from " + ArtifactClassLoaderRunnerConfig.class);
-            }
-        }
+        String exclusions = getAnnotationAttributeFrom(klass, ArtifactClassLoaderRunnerConfig.class, "appPackageExclusions");
 
         Predicate<MavenArtifact> exclusionPredicate = null;
         for (String exclusion : exclusions.split(","))
