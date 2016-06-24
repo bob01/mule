@@ -7,7 +7,6 @@
 
 package org.mule.functional.junit4.runners;
 
-import static java.util.Arrays.stream;
 import static org.mule.functional.junit4.runners.AnnotationUtils.getAnnotationAttributeFrom;
 import org.mule.runtime.module.artifact.classloader.ArtifactClassLoader;
 import org.mule.runtime.module.artifact.classloader.MuleArtifactClassLoader;
@@ -38,38 +37,38 @@ public class MuleClassLoaderRunnerFactory implements ClassLoaderRunnerFactory
     protected final transient Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public ClassLoader createClassLoader(Class<?> klass, ArtifactClassSpace artifactClassSpace)
+    public ClassLoader createClassLoader(Class<?> klass, ArtifactUrlClassification artifactUrlClassification)
     {
         // Container classLoader
-        logClassLoaderUrls("CONTAINER", artifactClassSpace.getContainer());
+        logClassLoaderUrls("CONTAINER", artifactUrlClassification.getContainer());
         final TestContainerClassLoaderFactory testContainerClassLoaderFactory = new TestContainerClassLoaderFactory(getExtraBootPackages(klass));
         Set<String> containerExportedPackages = new HashSet<>();
         containerExportedPackages.addAll(testContainerClassLoaderFactory.getBootPackages());
         containerExportedPackages.addAll(testContainerClassLoaderFactory.getSystemPackages());
-        ArtifactClassLoader classLoader = testContainerClassLoaderFactory.createContainerClassLoader(new URLClassLoader(artifactClassSpace.getContainer()));
+        ArtifactClassLoader classLoader = testContainerClassLoaderFactory.createContainerClassLoader(new URLClassLoader(artifactUrlClassification.getContainer().toArray(new URL[0])));
 
         // Plugin classloaders
-        if (artifactClassSpace.getPlugins().length > 0)
+        if (!artifactUrlClassification.getPlugins().isEmpty())
         {
-            final URL[] classSpace = artifactClassSpace.getPlugins()[0];
+            final Set<URL> pluginUrls = artifactUrlClassification.getPlugins().get(0);
             // Plugin classLoader
-            logClassLoaderUrls("PLUGIN", classSpace);
-            classLoader = new MuleArtifactClassLoader("plugin", classSpace, classLoader.getClassLoader(), classLoader.getClassLoaderLookupPolicy());
+            logClassLoaderUrls("PLUGIN", pluginUrls);
+            classLoader = new MuleArtifactClassLoader("plugin", pluginUrls.toArray(new URL[0]), classLoader.getClassLoader(), classLoader.getClassLoaderLookupPolicy());
         }
 
         // Application classLoader
-        logClassLoaderUrls("APP", artifactClassSpace.getApplication());
-        classLoader = new MuleArtifactClassLoader("app", artifactClassSpace.getApplication(), classLoader.getClassLoader(), classLoader.getClassLoaderLookupPolicy());
+        logClassLoaderUrls("APP", artifactUrlClassification.getApplication());
+        classLoader = new MuleArtifactClassLoader("app", artifactUrlClassification.getApplication().toArray(new URL[0]), classLoader.getClassLoader(), classLoader.getClassLoaderLookupPolicy());
 
         return classLoader.getClassLoader();
     }
 
-    private void logClassLoaderUrls(final String classLoaderName, final URL[] urls)
+    private void logClassLoaderUrls(final String classLoaderName, final Set<URL> urls)
     {
         if (logger.isDebugEnabled())
         {
             StringBuilder builder = new StringBuilder(classLoaderName).append(" classloader urls: [");
-            stream(urls).forEach(e -> builder.append("\n").append(" ").append(e.getFile()));
+            urls.stream().forEach(e -> builder.append("\n").append(" ").append(e.getFile()));
             builder.append("\n]");
             logger.debug(builder.toString());
         }

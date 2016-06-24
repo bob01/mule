@@ -63,8 +63,8 @@ public class ArtifactClassloaderTestRunner extends AbstractRunnerDelegate
         final Set<URL> classPathURLs = this.classPathURLsProvider.getURLs();
         LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies = mavenDependenciesResolver.buildDependencies(klass);
 
-        ArtifactClassSpace artifactClassSpace = classPathClassifier.classify(klass, classPathURLs, allDependencies, mavenMultiModuleArtifactMapping);
-        ClassLoader classLoader = classLoaderRunnerFactory.createClassLoader(klass, artifactClassSpace);
+        ArtifactUrlClassification artifactUrlClassification = classPathClassifier.classify(klass, classPathURLs, allDependencies, mavenMultiModuleArtifactMapping);
+        ClassLoader classLoader = classLoaderRunnerFactory.createClassLoader(klass, artifactUrlClassification);
         return classLoader;
     }
 

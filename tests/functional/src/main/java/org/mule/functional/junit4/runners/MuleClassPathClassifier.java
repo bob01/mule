@@ -14,9 +14,11 @@ import org.mule.runtime.extension.api.introspection.declaration.spi.Describer;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -26,9 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation for {@link ClassPathClassifier} that builds a {@link ArtifactClassSpace} similar to what Mule
+ * Default implementation for {@link ClassPathClassifier} that builds a {@link ArtifactUrlClassification} similar to what Mule
  * Runtime does by taking into account the Maven dependencies of the given tested artifact.
- * Basically it creates a {@link ArtifactClassSpace} hierarchy with:
+ * Basically it creates a {@link ArtifactUrlClassification} hierarchy with:
  * Provided Scope (plus JDK stuff)->Compile Scope (plus target/classes)->Test Scope (plus target/test-classes)
  * In all the cases it also includes its dependencies.
  */
@@ -38,7 +40,7 @@ public class MuleClassPathClassifier implements ClassPathClassifier
     private static final String TARGET_TEST_CLASSES = "/target/test-classes/";
 
     @Override
-    public ArtifactClassSpace classify(Class<?> klass, Set<URL> classPathURLs, LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies, MavenMultiModuleArtifactMapping mavenMultiModuleMapping)
+    public ArtifactUrlClassification classify(Class<?> klass, Set<URL> classPathURLs, LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies, MavenMultiModuleArtifactMapping mavenMultiModuleMapping)
     {
         final String currentArtifactFolder = new File(System.getProperty("user.dir")).getPath();
 
@@ -55,14 +57,12 @@ public class MuleClassPathClassifier implements ClassPathClassifier
         // Plus the target/test-classes of the current compiled artifact
         appURLs.addAll(buildArtifactTargetClassesURL(currentArtifactFolder, classPathURLs));
 
-        final URL[] applicationClassSpace = appURLs.toArray(new URL[appURLs.size()]);
-
         // The container contains anything that is not application either extension classloader urls
         Set<URL> containerURLs = new HashSet<>();
         containerURLs.addAll(classPathURLs);
         containerURLs.removeAll(appURLs);
 
-        URL[][] pluginClassSpaces = new URL[extensions.length][];
+        List<Set<URL>> extensionsURLs = new ArrayList<>(extensions.length);
         if (extensions.length > 0)
         {
             Set<URL> pluginURLs = buildClassLoaderURLs(mavenMultiModuleMapping, classPathURLs, allDependencies, false, artifact -> artifact.equals(compileArtifact), dependency -> dependency.isCompileScope(), false);
@@ -80,16 +80,14 @@ public class MuleClassPathClassifier implements ClassPathClassifier
             {
                 throw new IllegalArgumentException("Error while building resource URL for directory: " + generatedResourcesDirectory.getPath(), e);
             }
-            pluginClassSpaces[0] = pluginURLs.toArray(new URL[pluginURLs.size()]);
+            extensionsURLs.add(pluginURLs);
         }
 
         // After removing all the plugin and application urls we add provided dependencies urls (supports for having same dependencies as provided transitive and compile either test)
         Set<URL> containerProvidedDependenciesURLs = buildClassLoaderURLs(mavenMultiModuleMapping, classPathURLs, allDependencies, true, artifact -> artifact.equals(compileArtifact), dependency -> dependency.isProvidedScope(), false);
         containerURLs.addAll(containerProvidedDependenciesURLs);
 
-        final URL[] containerClassSpace = containerURLs.toArray(new URL[containerURLs.size()]);
-
-        return new ArtifactClassSpace(containerClassSpace, pluginClassSpaces, applicationClassSpace);
+        return new ArtifactUrlClassification(containerURLs, extensionsURLs, appURLs);
     }
 
     private MavenArtifact getCompileArtifact(final LinkedHashMap<MavenArtifact, Set<MavenArtifact>> allDependencies)

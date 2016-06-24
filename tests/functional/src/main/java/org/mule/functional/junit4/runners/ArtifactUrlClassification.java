@@ -8,32 +8,34 @@
 package org.mule.functional.junit4.runners;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Set;
 
-public class ArtifactClassSpace
+public class ArtifactUrlClassification
 {
 
-    private final URL[] container;
-    private final URL[][] plugins;
-    private final URL[]application;
+    private final Set<URL> container;
+    private final List<Set<URL>> plugins;
+    private final Set<URL> application;
 
-    public ArtifactClassSpace(URL[] container, URL[][] plugins, URL[] application)
+    public ArtifactUrlClassification(Set<URL> container, List<Set<URL>> plugins, Set<URL> application)
     {
         this.container = container;
         this.plugins = plugins;
         this.application = application;
     }
 
-    public URL[] getContainer()
+    public Set<URL> getContainer()
     {
         return container;
     }
 
-    public URL[][] getPlugins()
+    public List<Set<URL>> getPlugins()
     {
         return plugins;
     }
 
-    public URL[] getApplication()
+    public Set<URL> getApplication()
     {
         return application;
     }

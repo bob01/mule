@@ -15,8 +15,8 @@ public interface ClassLoaderRunnerFactory
 
     /**
      * @param testClass the test class about to be executed in order to allow getting its annotations
-     * @param artifactClassSpace a artifactClassSpace that defines the set of {@link java.net.URL} to be used for building the classloader
+     * @param artifactUrlClassification an URL classification that defines the set of {@link java.net.URL} to be used for building the classloader
      * @return the {@link ClassLoader} to be used for running the test.
      */
-    ClassLoader createClassLoader(Class<?> testClass, ArtifactClassSpace artifactClassSpace);
+    ClassLoader createClassLoader(Class<?> testClass, ArtifactUrlClassification artifactUrlClassification);
 }
