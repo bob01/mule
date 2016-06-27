@@ -7,6 +7,10 @@
 
 package org.mule.module.jersey;
 
+import org.glassfish.jersey.internal.MapPropertiesDelegate;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.server.*;
+import org.glassfish.jersey.server.spi.ResponseErrorMapper;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleMessage;
 import org.mule.api.component.JavaComponent;
@@ -22,33 +26,18 @@ import org.mule.transport.http.HttpConnector;
 import org.mule.transport.http.HttpConstants;
 import org.mule.util.ClassUtils;
 
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.ExceptionMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
-
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.ExceptionMapper;
-
-import org.glassfish.jersey.internal.MapPropertiesDelegate;
-import org.glassfish.jersey.jackson1.Jackson1Feature;
-import org.glassfish.jersey.server.ApplicationHandler;
-import org.glassfish.jersey.server.ContainerRequest;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.ServerProperties;
-import org.glassfish.jersey.server.ServerRuntime;
-import org.glassfish.jersey.server.spi.ResponseErrorMapper;
 
 /**
  * Wraps a set of components which can get invoked by Jersey. This component will
@@ -165,7 +154,7 @@ public class JerseyResourcesComponent extends AbstractComponent
 
         resourceConfig.addProperties(properties)
                 .registerClasses(resources)
-                .register(Jackson1Feature.class);
+                .register(JacksonFeature.class);
 
         if (!resourceConfig.isRegistered(ResponseErrorMapper.class))
         {

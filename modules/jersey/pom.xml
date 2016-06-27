@@ -6,7 +6,7 @@
         <artifactId>mule-modules</artifactId>
         <version>3.7.0</version>
     </parent>
-    <artifactId>mule-module-jersey</artifactId>
+    <artifactId>vdm-mule-module-jersey</artifactId>
     <packaging>jar</packaging>
     <name>Jersey Module</name>
     <description>A module for Jersey, the JAX-RS RI.</description>
@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson1</artifactId>
+            <artifactId>jersey-media-json-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
