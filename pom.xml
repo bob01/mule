@@ -200,7 +200,7 @@
         <hibernateVersion>3.6.0.Final</hibernateVersion>
         <hk2Version>2.3.0-b05</hk2Version>
         <jacksonVersion>1.9.11</jacksonVersion>
-        <jackson2Version>2.4.3</jackson2Version>
+        <jackson2Version>2.7.5</jackson2Version>
         <javax.inject.version>1</javax.inject.version>
         <jerseyVersion>2.11</jerseyVersion>
         <jaxbApiVersion>2.1</jaxbApiVersion>
@@ -241,7 +241,7 @@
         <slf4jVersion>1.7.7</slf4jVersion>
         <smackVersion>3.1.0</smackVersion>
         <springOsgiVersion>1.0.2</springOsgiVersion>
-        <springVersion>4.1.6.RELEASE</springVersion>
+        <springVersion>4.2.6.RELEASE</springVersion>
         <springSecurityVersion>4.0.1.RELEASE</springSecurityVersion>
         <sshCoreVersion>0.6.0</sshCoreVersion>
         <staxUtilsVersion>20080702</staxUtilsVersion>

@@ -6,6 +6,8 @@
  */
 package org.mule.module.spring.events;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mule.DefaultMuleEvent;
 import org.mule.DefaultMuleMessage;
 import org.mule.MessageExchangePattern;
@@ -17,12 +19,7 @@ import org.mule.api.MuleRuntimeException;
 import org.mule.api.config.MuleProperties;
 import org.mule.api.config.ThreadingProfile;
 import org.mule.api.context.MuleContextAware;
-import org.mule.api.endpoint.EndpointBuilder;
-import org.mule.api.endpoint.EndpointFactory;
-import org.mule.api.endpoint.EndpointURI;
-import org.mule.api.endpoint.InboundEndpoint;
-import org.mule.api.endpoint.MalformedEndpointException;
-import org.mule.api.endpoint.OutboundEndpoint;
+import org.mule.api.endpoint.*;
 import org.mule.api.lifecycle.Callable;
 import org.mule.api.lifecycle.Initialisable;
 import org.mule.api.lifecycle.InitialisationException;
@@ -42,17 +39,6 @@ import org.mule.object.SingletonObjectFactory;
 import org.mule.routing.filters.WildcardFilter;
 import org.mule.service.ServiceCompositeMessageSource;
 import org.mule.util.ClassUtils;
-
-import java.beans.ExceptionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutorService;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -61,6 +47,15 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.ResolvableType;
+
+import java.beans.ExceptionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutorService;
 
 /**
  * <code>MuleEventMulticaster</code> is an implementation of a Spring
@@ -783,5 +778,11 @@ public class MuleEventMulticaster
         {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void multicastEvent(ApplicationEvent applicationEvent, ResolvableType resolvableType)
+    {
+        // SPRING426
     }
 }
